@@ -1,0 +1,863 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Digital Business Tracker</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/dist/tabler-icons.min.css" />
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#f5f5f3;--surface:#fff;--surface2:#f0efeb;
+  --text:#1a1a18;--text2:#6b6b67;--text3:#9b9b97;
+  --border:rgba(0,0,0,0.1);--border2:rgba(0,0,0,0.18);
+  --blue:#185FA5;--blue-l:#E6F1FB;--blue-d:#0C447C;
+  --green:#3B6D11;--green-l:#EAF3DE;
+  --red:#A32D2D;--red-l:#FCEBEB;
+  --amber:#854F0B;--amber-l:#FAEEDA;
+  --r:10px;--rl:14px;
+}
+@media(prefers-color-scheme:dark){
+  :root{--bg:#1a1a18;--surface:#242422;--surface2:#2e2e2b;--text:#f0efeb;--text2:#a0a09c;--text3:#6b6b67;--border:rgba(255,255,255,0.1);--border2:rgba(255,255,255,0.18);--blue-l:#0C447C;--green-l:#1a3a07;--red-l:#3a1010;--amber-l:#3a2005}
+}
+body{background:var(--bg);color:var(--text);font-family:-apple-system,'Segoe UI',sans-serif;min-height:100vh}
+
+/* LOGIN */
+#loginScreen{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:1rem}
+.login-box{background:var(--surface);border:0.5px solid var(--border);border-radius:var(--rl);padding:2.5rem 2rem;width:100%;max-width:380px;text-align:center}
+.login-logo{font-size:44px;color:var(--blue);margin-bottom:1rem}
+.login-box h2{font-size:20px;font-weight:600;margin-bottom:4px}
+.login-box p{font-size:13px;color:var(--text2);margin-bottom:1.5rem}
+.lock-badge{display:inline-flex;align-items:center;gap:5px;font-size:11px;color:var(--text3);background:var(--surface2);border:0.5px solid var(--border);border-radius:20px;padding:4px 12px;margin-bottom:1.25rem}
+.pass-wrap{position:relative;margin-bottom:1rem}
+.pass-wrap input{padding-right:44px;text-align:center;letter-spacing:4px;font-size:16px}
+.eye-btn{position:absolute;right:12px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;color:var(--text3);font-size:18px}
+.hint{font-size:12px;color:var(--red);min-height:18px;margin-top:6px}
+.divider{display:flex;align-items:center;gap:10px;margin:1rem 0;color:var(--text3);font-size:12px}
+.divider::before,.divider::after{content:'';flex:1;height:0.5px;background:var(--border)}
+
+/* APP */
+#mainApp{display:none}
+.app{max-width:880px;margin:0 auto;padding:1.5rem 1rem 5rem}
+.header{display:flex;align-items:center;justify-content:space-between;margin-bottom:1.5rem;flex-wrap:wrap;gap:10px}
+.header h1{font-size:20px;font-weight:600;display:flex;align-items:center;gap:8px}
+.header h1 i{color:var(--blue)}
+.header-sub{font-size:13px;color:var(--text2);margin-top:2px}
+.header-right{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.sync-badge{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--text2);background:var(--surface);border:0.5px solid var(--border);border-radius:20px;padding:5px 12px}
+.dot{width:7px;height:7px;border-radius:50%;background:var(--text3)}
+.dot.g{background:#3B6D11}.dot.r{background:var(--red)}.dot.y{background:var(--amber)}
+.icon-btn{display:flex;align-items:center;gap:5px;font-size:12px;padding:5px 12px;border:0.5px solid var(--border2);border-radius:20px;background:var(--surface);color:var(--text2);cursor:pointer;font-family:inherit;transition:all .15s}
+.icon-btn:hover{background:var(--surface2)}
+
+/* VIEW-ONLY BAR */
+.vo-bar{background:var(--amber-l);border:0.5px solid var(--amber);border-radius:var(--r);padding:8px 14px;font-size:12px;color:var(--amber);display:flex;align-items:center;gap:8px;margin-bottom:1rem;flex-wrap:wrap}
+
+/* TABS */
+.tabs{display:flex;gap:3px;background:var(--surface);border:0.5px solid var(--border);border-radius:var(--rl);padding:4px;margin-bottom:1.25rem;overflow-x:auto}
+.tab{flex:1;min-width:72px;padding:8px 5px;font-size:13px;border:none;background:none;cursor:pointer;border-radius:8px;color:var(--text2);font-family:inherit;transition:all .15s;white-space:nowrap;display:flex;align-items:center;justify-content:center;gap:4px}
+.tab.active{background:var(--blue);color:#fff;font-weight:500}
+.tab:hover:not(.active){background:var(--surface2);color:var(--text)}
+.tab-rel{position:relative}
+.t-cnt{position:absolute;top:2px;right:4px;background:var(--red);color:#fff;font-size:9px;font-weight:700;width:15px;height:15px;border-radius:50%;display:flex;align-items:center;justify-content:center}
+
+.section{display:none}.section.active{display:block}
+
+/* METRICS */
+.metrics{display:grid;grid-template-columns:repeat(auto-fit,minmax(148px,1fr));gap:10px;margin-bottom:1.25rem}
+.metric{background:var(--surface);border:0.5px solid var(--border);border-radius:var(--r);padding:1rem}
+.m-label{font-size:12px;color:var(--text2);margin-bottom:6px}
+.m-val{font-size:21px;font-weight:600}
+.m-val.up{color:var(--green)}.m-val.warn{color:var(--amber)}
+.m-sub{font-size:11px;color:var(--text3);margin-top:3px}
+
+/* CARD */
+.card{background:var(--surface);border:0.5px solid var(--border);border-radius:var(--rl);padding:1.25rem;margin-bottom:1rem}
+.card-title{font-size:14px;font-weight:600;margin-bottom:1rem;display:flex;align-items:center;gap:7px}
+.card-title i{color:var(--blue)}
+
+/* FORM */
+.fg{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+@media(max-width:500px){.fg{grid-template-columns:1fr}}
+.fgroup{display:flex;flex-direction:column;gap:5px}
+.fgroup.full{grid-column:1/-1}
+label{font-size:12px;color:var(--text2);font-weight:500}
+input,select,textarea{font-family:inherit;font-size:14px;padding:9px 12px;border:0.5px solid var(--border2);border-radius:var(--r);background:var(--surface2);color:var(--text);outline:none;width:100%;transition:border-color .15s}
+input:focus,select:focus,textarea:focus{border-color:var(--blue)}
+textarea{min-height:70px;resize:vertical}
+
+/* BUTTONS */
+.btn{display:inline-flex;align-items:center;gap:6px;padding:9px 16px;font-size:13px;font-family:inherit;border:0.5px solid var(--border2);border-radius:var(--r);background:var(--surface);color:var(--text);cursor:pointer;transition:all .15s;font-weight:500}
+.btn:hover{background:var(--surface2)}.btn:active{transform:scale(.98)}
+.btn-primary{background:var(--blue);border-color:var(--blue);color:#fff}
+.btn-primary:hover{background:var(--blue-d)}
+.btn-sm{padding:5px 10px;font-size:12px}
+.btn-full{width:100%;justify-content:center}
+.bic{padding:5px 8px;border-color:transparent;background:none}
+.bic.ed{color:var(--blue)}.bic.ed:hover{background:var(--blue-l)}
+.bic.dl{color:var(--red)}.bic.dl:hover{background:var(--red-l)}
+.bic.rs{color:var(--green)}.bic.rs:hover{background:var(--green-l)}
+
+/* TABLE */
+table{width:100%;border-collapse:collapse;font-size:13px}
+th{text-align:left;padding:8px 10px;font-size:11px;font-weight:600;color:var(--text2);text-transform:uppercase;letter-spacing:.5px;border-bottom:0.5px solid var(--border)}
+td{padding:9px 10px;border-bottom:0.5px solid var(--border);color:var(--text);vertical-align:middle}
+tr:last-child td{border-bottom:none}
+tr:hover td{background:var(--surface2)}
+.badge{display:inline-block;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:600}
+.b-blue{background:var(--blue-l);color:var(--blue-d)}
+.apos{color:var(--green);font-weight:600}.aneg{color:var(--red);font-weight:600}
+
+/* FILTERS */
+.filters{display:flex;gap:6px;margin-bottom:1rem;flex-wrap:wrap}
+.fb{padding:5px 14px;font-size:12px;border:0.5px solid var(--border2);border-radius:20px;background:none;cursor:pointer;font-family:inherit;color:var(--text2);transition:all .15s;font-weight:500}
+.fb.active{background:var(--blue);border-color:var(--blue);color:#fff}
+.srow{display:flex;gap:8px;margin-bottom:1rem}
+.srow input{flex:1}
+.chart-wrap{position:relative;width:100%;height:220px}
+.empty{text-align:center;padding:2.5rem;color:var(--text3);font-size:14px}
+.empty i{font-size:36px;display:block;margin-bottom:10px}
+
+/* RECENT ENTRIES */
+.re-item{display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:0.5px solid var(--border)}
+.re-item:last-child{border-bottom:none}
+.re-ico{width:34px;height:34px;border-radius:8px;background:var(--blue-l);display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.re-ico i{color:var(--blue);font-size:16px}
+.re-ico.rf{background:var(--red-l)}.re-ico.rf i{color:var(--red)}
+.re-info{flex:1;min-width:0}
+.re-name{font-size:13px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.re-meta{font-size:11px;color:var(--text3);margin-top:1px}
+.re-amt{font-size:14px;font-weight:600;flex-shrink:0}
+.re-acts{display:flex;gap:2px;flex-shrink:0}
+
+/* TRASH */
+.tr-item{display:flex;align-items:center;gap:10px;padding:10px;border-radius:var(--r);border:0.5px solid var(--border);margin-bottom:8px;background:var(--surface2)}
+.tr-info{flex:1;min-width:0}
+.tr-name{font-size:13px;font-weight:500}
+.tr-meta{font-size:11px;color:var(--text3);margin-top:2px}
+.tr-days{font-size:11px;color:var(--red);font-weight:500;background:var(--red-l);padding:2px 8px;border-radius:20px;flex-shrink:0}
+
+/* MODAL */
+.modal-bg{display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:1000;align-items:center;justify-content:center;padding:1rem}
+.modal-bg.open{display:flex}
+.modal{background:var(--surface);border-radius:var(--rl);padding:1.5rem;width:100%;max-width:500px;max-height:90vh;overflow-y:auto}
+.modal-hd{font-size:16px;font-weight:600;margin-bottom:1.25rem;display:flex;align-items:center;justify-content:space-between}
+.mc{background:none;border:none;cursor:pointer;color:var(--text3);font-size:20px;line-height:1}
+.mc:hover{color:var(--text)}
+
+/* SETUP STEPS */
+.sstep{display:flex;gap:12px;padding:10px 0;border-bottom:0.5px solid var(--border);align-items:flex-start}
+.sstep:last-of-type{border-bottom:none}
+.snum{width:24px;height:24px;border-radius:50%;background:var(--blue);color:#fff;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;flex-shrink:0;margin-top:2px}
+.stxt{font-size:13px;color:var(--text2);line-height:1.6}
+.stxt strong{color:var(--text)}
+
+/* TOAST */
+.toast{position:fixed;bottom:1.5rem;right:1.5rem;padding:12px 18px;border-radius:var(--r);font-size:13px;font-weight:500;z-index:9999;transform:translateY(80px);opacity:0;transition:all .3s;max-width:300px;box-shadow:0 4px 20px rgba(0,0,0,.15)}
+.toast.show{transform:translateY(0);opacity:1}
+.toast.ok{background:var(--green-l);color:var(--green);border:0.5px solid #97C459}
+.toast.er{background:var(--red-l);color:var(--red);border:0.5px solid #F09595}
+.toast.inf{background:var(--blue-l);color:var(--blue);border:0.5px solid #85B7EB}
+
+.pbar{height:6px;background:var(--surface2);border-radius:4px;overflow:hidden;margin-top:6px}
+.pfill{height:100%;background:var(--blue);border-radius:4px;transition:width .5s}
+</style>
+</head>
+<body>
+
+<!-- ========== LOGIN ========== -->
+<div id="loginScreen">
+  <div class="login-box">
+    <div class="login-logo"><i class="ti ti-chart-bar"></i></div>
+    <h2>Business Tracker</h2>
+    <p>Your digital product sales dashboard</p>
+    <div class="lock-badge"><i class="ti ti-lock" style="font-size:12px"></i> Password Protected</div>
+    <div class="pass-wrap">
+      <input type="password" id="passInput" placeholder="Enter password" onkeydown="if(event.key==='Enter')doLogin()" />
+      <button class="eye-btn" onclick="toggleEye()"><i class="ti ti-eye" id="eyeIcon"></i></button>
+    </div>
+    <div class="hint" id="loginHint"></div>
+    <button class="btn btn-primary btn-full" style="margin-top:.75rem" onclick="doLogin()">
+      <i class="ti ti-login"></i> Login
+    </button>
+    <div class="divider">or</div>
+    <button class="btn btn-full" onclick="goViewOnly()">
+      <i class="ti ti-eye"></i> View Only (no password)
+    </button>
+    <p style="font-size:11px;color:var(--text3);margin-top:1.25rem">Default password: <strong>1234</strong> &nbsp;·&nbsp; Change it in Setup</p>
+  </div>
+</div>
+
+<!-- ========== MAIN APP ========== -->
+<div id="mainApp">
+<div class="app">
+
+  <div class="header">
+    <div>
+      <h1><i class="ti ti-chart-bar"></i> Business Tracker</h1>
+      <p class="header-sub" id="dateDisplay"></p>
+    </div>
+    <div class="header-right">
+      <div class="sync-badge"><div class="dot y" id="syncDot"></div><span id="syncTxt">Offline</span></div>
+      <button class="icon-btn" onclick="doLogout()"><i class="ti ti-lock" style="font-size:13px"></i> <span id="logLabel">Logout</span></button>
+    </div>
+  </div>
+
+  <div class="vo-bar" id="voBar" style="display:none">
+    <i class="ti ti-eye"></i> <strong>View Only</strong> — Login to add, edit or delete entries
+    <button class="btn btn-sm btn-primary" style="margin-left:auto" onclick="doLogout()">Login</button>
+  </div>
+
+  <div class="tabs">
+    <button class="tab active" onclick="showTab('dashboard')"><i class="ti ti-home"></i> Dashboard</button>
+    <button class="tab" id="tabAdd" onclick="showTab('add')"><i class="ti ti-plus"></i> New</button>
+    <button class="tab" onclick="showTab('history')"><i class="ti ti-list"></i> History</button>
+    <button class="tab" onclick="showTab('report')"><i class="ti ti-chart-line"></i> Report</button>
+    <button class="tab tab-rel" onclick="showTab('trash')"><i class="ti ti-trash"></i> Trash<span class="t-cnt" id="tCnt" style="display:none"></span></button>
+    <button class="tab" onclick="showTab('setup')"><i class="ti ti-settings"></i> Setup</button>
+  </div>
+
+  <!-- DASHBOARD -->
+  <div class="section active" id="tab-dashboard">
+    <div class="metrics" id="metGrid"></div>
+    <div class="card">
+      <div class="card-title"><i class="ti ti-calendar-stats"></i> Daily Sales This Month (৳)</div>
+      <div class="chart-wrap"><canvas id="dayChart"></canvas></div>
+    </div>
+    <div class="card">
+      <div class="card-title">
+        <i class="ti ti-clock"></i> Recent 5 Entries
+        <button class="btn btn-sm" style="margin-left:auto" id="dashAddBtn" onclick="showTab('add')"><i class="ti ti-plus"></i> Add New</button>
+      </div>
+      <div id="recentList"></div>
+    </div>
+  </div>
+
+  <!-- ADD -->
+  <div class="section" id="tab-add">
+    <div class="card">
+      <div class="card-title"><i class="ti ti-receipt"></i> Add New Sale</div>
+      <div class="fg">
+        <div class="fgroup"><label>Product Name *</label><input type="text" id="fProd" placeholder="e.g. Premium Template Pack" /></div>
+        <div class="fgroup"><label>Category</label>
+          <select id="fCat">
+            <option value="Software">Software / App</option>
+            <option value="eBook">eBook / PDF</option>
+            <option value="Template">Template / Design</option>
+            <option value="Course">Course / Video</option>
+            <option value="Other">Other</option>
+          </select>
+        </div>
+        <div class="fgroup"><label>Amount (৳) *</label><input type="number" id="fAmt" placeholder="0" min="0" /></div>
+        <div class="fgroup"><label>Payment Method</label>
+          <select id="fPay">
+            <option value="bKash">bKash</option>
+            <option value="Nagad">Nagad</option>
+            <option value="Rocket">Rocket</option>
+            <option value="Bank Transfer">Bank Transfer</option>
+            <option value="Cash">Cash</option>
+            <option value="Card">Card</option>
+            <option value="PayPal">PayPal</option>
+            <option value="Other">Other</option>
+          </select>
+        </div>
+        <div class="fgroup"><label>Customer (optional)</label><input type="text" id="fCust" placeholder="Customer name or ID" /></div>
+        <div class="fgroup"><label>Type</label>
+          <select id="fType">
+            <option value="sale">Sale ✅</option>
+            <option value="refund">Refund ❌</option>
+          </select>
+        </div>
+        <div class="fgroup full"><label>Note (optional)</label><textarea id="fNote" placeholder="Any extra info..."></textarea></div>
+      </div>
+      <div style="margin-top:1rem;display:flex;gap:8px;flex-wrap:wrap">
+        <button class="btn btn-primary" onclick="addEntry()"><i class="ti ti-check"></i> Save Entry</button>
+        <button class="btn" onclick="clearForm()"><i class="ti ti-x"></i> Clear</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- HISTORY -->
+  <div class="section" id="tab-history">
+    <div class="card" style="padding:1rem">
+      <div class="srow">
+        <input type="text" id="srch" placeholder="Search product or customer..." oninput="renderHistory()" />
+        <select onchange="renderHistory()" id="fltCat" style="width:140px;flex-shrink:0">
+          <option value="">All Categories</option>
+          <option value="Software">Software</option>
+          <option value="eBook">eBook</option>
+          <option value="Template">Template</option>
+          <option value="Course">Course</option>
+          <option value="Other">Other</option>
+        </select>
+      </div>
+      <div class="filters">
+        <button class="fb active" onclick="setFlt('all',this)">All</button>
+        <button class="fb" onclick="setFlt('sale',this)">Sales</button>
+        <button class="fb" onclick="setFlt('refund',this)">Refunds</button>
+        <button class="fb" onclick="setFlt('today',this)">Today</button>
+        <button class="fb" onclick="setFlt('month',this)">This Month</button>
+      </div>
+      <div style="overflow-x:auto">
+        <table>
+          <thead><tr><th>Date</th><th>Product</th><th>Category</th><th>Payment</th><th>Amount</th><th></th></tr></thead>
+          <tbody id="histBody"></tbody>
+        </table>
+      </div>
+      <div id="histEmpty" class="empty" style="display:none"><i class="ti ti-receipt-off"></i>No entries found</div>
+    </div>
+  </div>
+
+  <!-- REPORT -->
+  <div class="section" id="tab-report">
+    <div class="metrics" id="rptMet"></div>
+    <div class="card">
+      <div class="card-title"><i class="ti ti-trending-up"></i> Monthly Revenue Comparison</div>
+      <div class="filters">
+        <button class="fb active" onclick="setRpt('3m',this)">3 Months</button>
+        <button class="fb" onclick="setRpt('6m',this)">6 Months</button>
+        <button class="fb" onclick="setRpt('12m',this)">12 Months</button>
+      </div>
+      <div class="chart-wrap" style="height:240px"><canvas id="rptChart"></canvas></div>
+    </div>
+    <div class="card">
+      <div class="card-title"><i class="ti ti-chart-donut"></i> Category Breakdown</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;align-items:center">
+        <div class="chart-wrap" style="height:180px"><canvas id="donut"></canvas></div>
+        <div id="donutLgd"></div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-title"><i class="ti ti-trophy"></i> Top Products</div>
+      <div id="topProds"></div>
+    </div>
+  </div>
+
+  <!-- TRASH -->
+  <div class="section" id="tab-trash">
+    <div class="card">
+      <div class="card-title">
+        <i class="ti ti-trash"></i> Trash
+        <span style="font-size:12px;color:var(--text3);font-weight:400;margin-left:4px">— Items auto-delete after 15 days</span>
+        <button class="btn btn-sm" style="margin-left:auto;color:var(--red)" id="emptyBtn" onclick="emptyTrash()"><i class="ti ti-trash-x"></i> Empty All</button>
+      </div>
+      <div id="trashList"></div>
+      <div id="trashEmpty" class="empty" style="display:none"><i class="ti ti-trash-off"></i>Trash is empty</div>
+    </div>
+  </div>
+
+  <!-- SETUP -->
+  <div class="section" id="tab-setup">
+
+    <div class="card">
+      <div class="card-title"><i class="ti ti-lock"></i> Change Password</div>
+      <div style="display:grid;gap:10px;max-width:340px">
+        <div class="fgroup"><label>Current Password</label><input type="password" id="oldP" placeholder="Current password" /></div>
+        <div class="fgroup"><label>New Password</label><input type="password" id="newP" placeholder="New password (min 4 chars)" /></div>
+        <div class="fgroup"><label>Confirm New Password</label><input type="password" id="confP" placeholder="Repeat new password" /></div>
+      </div>
+      <button class="btn btn-primary" style="margin-top:12px" onclick="changePass()"><i class="ti ti-check"></i> Update Password</button>
+    </div>
+
+    <div class="card">
+      <div class="card-title"><i class="ti ti-brand-firebase" style="color:#E37525"></i> Firebase Setup — Sync Across All Devices</div>
+      <p style="font-size:13px;color:var(--text2);margin-bottom:1rem;line-height:1.7">Connect Firebase to sync your data across every device in real time. It's completely free.</p>
+      <div class="sstep"><div class="snum">1</div><div class="stxt">Go to <strong>firebase.google.com</strong> → Sign in with Google → <strong>Create a project</strong> → give it a name → Continue → Create project</div></div>
+      <div class="sstep"><div class="snum">2</div><div class="stxt"><strong>Build → Realtime Database → Create Database → Start in test mode → Enable</strong></div></div>
+      <div class="sstep"><div class="snum">3</div><div class="stxt">Click <strong>⚙️ Project Settings</strong> → scroll to <strong>Your apps</strong> → click <strong>&lt;/&gt; Web</strong> → Register app → copy the <code>firebaseConfig</code> object</div></div>
+      <div class="sstep"><div class="snum">4</div><div class="stxt">Paste each value below and click <strong>Save & Connect</strong></div></div>
+      <div style="display:grid;gap:10px;margin-top:1.25rem">
+        <div class="fgroup"><label>API Key</label><input type="text" id="fbKey" placeholder="AIzaSy..." /></div>
+        <div class="fgroup"><label>Database URL</label><input type="text" id="fbUrl" placeholder="https://your-project-default-rtdb.firebaseio.com" /></div>
+        <div class="fgroup"><label>Project ID</label><input type="text" id="fbPid" placeholder="your-project-id" /></div>
+        <div class="fgroup"><label>App ID</label><input type="text" id="fbAid" placeholder="1:123456789:web:abc123..." /></div>
+      </div>
+      <div style="margin-top:1rem;display:flex;gap:8px;flex-wrap:wrap">
+        <button class="btn btn-primary" onclick="saveFb()"><i class="ti ti-device-floppy"></i> Save & Connect</button>
+        <button class="btn" onclick="testFb()"><i class="ti ti-wifi"></i> Test Connection</button>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title"><i class="ti ti-database-export"></i> Export Data</div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap">
+        <button class="btn" onclick="expCSV()"><i class="ti ti-file-spreadsheet"></i> Export CSV</button>
+        <button class="btn" onclick="expJSON()"><i class="ti ti-file-code"></i> Backup JSON</button>
+      </div>
+    </div>
+
+    <div class="card" style="border-color:rgba(163,45,45,.3)">
+      <div class="card-title" style="color:var(--red)"><i class="ti ti-alert-triangle"></i> Danger Zone</div>
+      <p style="font-size:13px;color:var(--text2);margin-bottom:12px">This will permanently delete all data. This cannot be undone.</p>
+      <button class="btn" style="color:var(--red);border-color:rgba(163,45,45,.4)" onclick="nukeAll()"><i class="ti ti-trash"></i> Delete All Data</button>
+    </div>
+
+  </div>
+</div>
+</div>
+
+<!-- EDIT MODAL -->
+<div class="modal-bg" id="editModal">
+  <div class="modal">
+    <div class="modal-hd">Edit Entry <button class="mc" onclick="closeEdit()"><i class="ti ti-x"></i></button></div>
+    <div class="fg">
+      <div class="fgroup"><label>Product Name *</label><input type="text" id="eProd" /></div>
+      <div class="fgroup"><label>Category</label>
+        <select id="eCat">
+          <option value="Software">Software / App</option>
+          <option value="eBook">eBook / PDF</option>
+          <option value="Template">Template / Design</option>
+          <option value="Course">Course / Video</option>
+          <option value="Other">Other</option>
+        </select>
+      </div>
+      <div class="fgroup"><label>Amount (৳) *</label><input type="number" id="eAmt" min="0" /></div>
+      <div class="fgroup"><label>Payment Method</label>
+        <select id="ePay">
+          <option value="bKash">bKash</option>
+          <option value="Nagad">Nagad</option>
+          <option value="Rocket">Rocket</option>
+          <option value="Bank Transfer">Bank Transfer</option>
+          <option value="Cash">Cash</option>
+          <option value="Card">Card</option>
+          <option value="PayPal">PayPal</option>
+          <option value="Other">Other</option>
+        </select>
+      </div>
+      <div class="fgroup"><label>Customer</label><input type="text" id="eCust" /></div>
+      <div class="fgroup"><label>Type</label>
+        <select id="eType">
+          <option value="sale">Sale ✅</option>
+          <option value="refund">Refund ❌</option>
+        </select>
+      </div>
+      <div class="fgroup full"><label>Note</label><textarea id="eNote"></textarea></div>
+    </div>
+    <input type="hidden" id="eId" />
+    <div style="margin-top:1rem;display:flex;gap:8px">
+      <button class="btn btn-primary" onclick="saveEdit()"><i class="ti ti-check"></i> Save Changes</button>
+      <button class="btn" onclick="closeEdit()">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<script>
+/* ===== STATE ===== */
+let entries = JSON.parse(localStorage.getItem('biz_e')||'[]');
+let trash   = JSON.parse(localStorage.getItem('biz_t')||'[]');
+let isAuth  = sessionStorage.getItem('biz_auth')==='1';
+let isVO    = sessionStorage.getItem('biz_vo')==='1';
+let flt='all', rptP='3m';
+let db=null, fbRef=null, tbRef=null;
+let CH={};
+const CLR=['#185FA5','#3B6D11','#854F0B','#993556','#533AB7','#0F6E56'];
+
+function H(s){let h=0;for(let i=0;i<s.length;i++)h=(Math.imul(31,h)+s.charCodeAt(i))|0;return h.toString(16)}
+function getPass(){return localStorage.getItem('biz_pw')||H('1234')}
+
+/* ===== AUTH ===== */
+function doLogin(){
+  const v=document.getElementById('passInput').value;
+  if(!v){hint('Please enter your password');return}
+  if(H(v)===getPass()){
+    sessionStorage.setItem('biz_auth','1');
+    sessionStorage.removeItem('biz_vo');
+    isAuth=true;isVO=false;
+    boot();
+  } else {
+    hint('Incorrect password. Try again.');
+    document.getElementById('passInput').value='';
+    document.getElementById('passInput').focus();
+  }
+}
+function goViewOnly(){
+  sessionStorage.removeItem('biz_auth');
+  sessionStorage.setItem('biz_vo','1');
+  isAuth=false;isVO=true;
+  boot();
+}
+function doLogout(){
+  sessionStorage.clear();isAuth=false;isVO=false;
+  document.getElementById('mainApp').style.display='none';
+  document.getElementById('loginScreen').style.display='flex';
+  document.getElementById('passInput').value='';
+}
+function toggleEye(){
+  const i=document.getElementById('passInput'),ic=document.getElementById('eyeIcon');
+  if(i.type==='password'){i.type='text';ic.className='ti ti-eye-off';}
+  else{i.type='password';ic.className='ti ti-eye';}
+}
+function hint(m){const h=document.getElementById('loginHint');h.textContent=m;setTimeout(()=>h.textContent='',3000)}
+
+function changePass(){
+  if(!isAuth){toast('You must be logged in to change the password','er');return}
+  const o=document.getElementById('oldP').value;
+  const n=document.getElementById('newP').value;
+  const c=document.getElementById('confP').value;
+  if(H(o)!==getPass()){toast('Current password is incorrect','er');return}
+  if(n.length<4){toast('New password must be at least 4 characters','er');return}
+  if(n!==c){toast('Passwords do not match','er');return}
+  localStorage.setItem('biz_pw',H(n));
+  ['oldP','newP','confP'].forEach(id=>document.getElementById(id).value='');
+  toast('Password updated successfully!','ok');
+}
+
+function boot(){
+  document.getElementById('loginScreen').style.display='none';
+  document.getElementById('mainApp').style.display='block';
+  document.getElementById('voBar').style.display=isVO?'flex':'none';
+  document.getElementById('tabAdd').style.display=isVO?'none':'';
+  document.getElementById('logLabel').textContent=isAuth?'Logout':'Login';
+  document.getElementById('dateDisplay').textContent=
+    new Date().toLocaleDateString('en-US',{weekday:'long',year:'numeric',month:'long',day:'numeric'});
+  autoClean();updateTCnt();
+  const cfg=JSON.parse(localStorage.getItem('fbCfg')||'{}');
+  if(cfg.apiKey) initFb(cfg);
+  renderDash();
+}
+
+if(isAuth||isVO){document.addEventListener('DOMContentLoaded',boot);}
+
+/* ===== TABS ===== */
+function showTab(n){
+  if(n==='add'&&isVO){toast('Please login to add entries','er');return}
+  document.querySelectorAll('.section').forEach(s=>s.classList.remove('active'));
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+  document.getElementById('tab-'+n).classList.add('active');
+  const tabs=['dashboard','add','history','report','trash','setup'];
+  const i=tabs.indexOf(n);if(i>=0)document.querySelectorAll('.tab')[i].classList.add('active');
+  if(n==='dashboard')renderDash();
+  if(n==='history')renderHistory();
+  if(n==='report')renderReport();
+  if(n==='trash')renderTrash();
+  if(n==='setup')loadCfg();
+}
+
+/* ===== ENTRIES ===== */
+function addEntry(){
+  const p=document.getElementById('fProd').value.trim();
+  const a=parseFloat(document.getElementById('fAmt').value);
+  if(!p){toast('Please enter a product name','er');return}
+  if(!a||a<=0){toast('Please enter a valid amount','er');return}
+  const e={
+    id:Date.now()+'_'+Math.random().toString(36).substr(2,5),
+    product:p,amount:a,
+    category:document.getElementById('fCat').value,
+    payment:document.getElementById('fPay').value,
+    customer:document.getElementById('fCust').value.trim(),
+    type:document.getElementById('fType').value,
+    note:document.getElementById('fNote').value.trim(),
+    date:new Date().toISOString()
+  };
+  entries.unshift(e);saveE();
+  if(db&&fbRef)fbRef.child(e.id).set(e);
+  clearForm();toast('Entry saved successfully!','ok');showTab('dashboard');
+}
+function clearForm(){
+  ['fProd','fAmt','fCust','fNote'].forEach(id=>document.getElementById(id).value='');
+  document.getElementById('fType').value='sale';
+}
+function deleteEntry(id){
+  if(!isAuth){toast('Please login to delete entries','er');return}
+  const e=entries.find(x=>x.id===id);if(!e)return;
+  e.deletedAt=new Date().toISOString();
+  trash.unshift(e);entries=entries.filter(x=>x.id!==id);
+  saveE();saveT();
+  if(db){if(fbRef)fbRef.child(id).remove();if(tbRef)tbRef.child(id).set(e);}
+  updateTCnt();renderHistory();renderDash();toast('Moved to Trash','inf');
+}
+function openEdit(id){
+  if(!isAuth){toast('Please login to edit entries','er');return}
+  const e=entries.find(x=>x.id===id);if(!e)return;
+  document.getElementById('eId').value=e.id;
+  document.getElementById('eProd').value=e.product;
+  document.getElementById('eAmt').value=e.amount;
+  document.getElementById('eCat').value=e.category;
+  document.getElementById('ePay').value=e.payment;
+  document.getElementById('eCust').value=e.customer||'';
+  document.getElementById('eType').value=e.type;
+  document.getElementById('eNote').value=e.note||'';
+  document.getElementById('editModal').classList.add('open');
+}
+function closeEdit(){document.getElementById('editModal').classList.remove('open')}
+function saveEdit(){
+  const id=document.getElementById('eId').value;
+  const p=document.getElementById('eProd').value.trim();
+  const a=parseFloat(document.getElementById('eAmt').value);
+  if(!p){toast('Product name is required','er');return}
+  if(!a||a<=0){toast('Enter a valid amount','er');return}
+  const i=entries.findIndex(e=>e.id===id);if(i<0)return;
+  entries[i]={...entries[i],product:p,amount:a,
+    category:document.getElementById('eCat').value,
+    payment:document.getElementById('ePay').value,
+    customer:document.getElementById('eCust').value.trim(),
+    type:document.getElementById('eType').value,
+    note:document.getElementById('eNote').value.trim(),
+    editedAt:new Date().toISOString()};
+  saveE();
+  if(db&&fbRef)fbRef.child(id).set(entries[i]);
+  closeEdit();renderHistory();renderDash();toast('Entry updated!','ok');
+}
+
+/* ===== TRASH ===== */
+function autoClean(){
+  const before=trash.length;
+  trash=trash.filter(e=>Date.now()-new Date(e.deletedAt).getTime()<15*86400000);
+  if(trash.length<before)saveT();
+}
+function dLeft(d){return Math.max(0,15-Math.floor((Date.now()-new Date(d).getTime())/86400000))}
+function restoreEntry(id){
+  if(!isAuth){toast('Please login to restore entries','er');return}
+  const e=trash.find(x=>x.id===id);if(!e)return;
+  delete e.deletedAt;entries.unshift(e);trash=trash.filter(x=>x.id!==id);
+  saveE();saveT();
+  if(db){if(fbRef)fbRef.child(id).set(e);if(tbRef)tbRef.child(id).remove();}
+  updateTCnt();renderTrash();renderDash();toast('Entry restored!','ok');
+}
+function permDel(id){
+  if(!isAuth){toast('Please login','er');return}
+  if(!confirm('Permanently delete this entry? This cannot be undone.'))return;
+  trash=trash.filter(e=>e.id!==id);saveT();
+  if(db&&tbRef)tbRef.child(id).remove();
+  updateTCnt();renderTrash();toast('Permanently deleted','inf');
+}
+function emptyTrash(){
+  if(!isAuth){toast('Please login','er');return}
+  if(!confirm('Permanently delete ALL trash items?'))return;
+  trash=[];saveT();
+  if(db&&tbRef)tbRef.set({});
+  updateTCnt();renderTrash();toast('Trash emptied','inf');
+}
+function updateTCnt(){
+  const c=document.getElementById('tCnt');
+  if(trash.length){c.textContent=trash.length>9?'9+':trash.length;c.style.display='flex';}
+  else c.style.display='none';
+}
+function saveE(){localStorage.setItem('biz_e',JSON.stringify(entries))}
+function saveT(){localStorage.setItem('biz_t',JSON.stringify(trash))}
+
+/* ===== HELPERS ===== */
+function fD(iso){return new Date(iso).toLocaleDateString('en-US',{day:'2-digit',month:'short'})}
+function fA(a){return '৳'+Math.round(a).toLocaleString('en-IN')}
+
+function filtered(){
+  let d=[...entries];
+  const s=(document.getElementById('srch')?.value||'').toLowerCase();
+  const c=document.getElementById('fltCat')?.value||'';
+  if(s)d=d.filter(e=>e.product.toLowerCase().includes(s)||(e.customer||'').toLowerCase().includes(s));
+  if(c)d=d.filter(e=>e.category===c);
+  const n=new Date();
+  if(flt==='sale')d=d.filter(e=>e.type==='sale');
+  else if(flt==='refund')d=d.filter(e=>e.type==='refund');
+  else if(flt==='today')d=d.filter(e=>new Date(e.date).toDateString()===n.toDateString());
+  else if(flt==='month')d=d.filter(e=>{const x=new Date(e.date);return x.getMonth()===n.getMonth()&&x.getFullYear()===n.getFullYear();});
+  return d;
+}
+function setFlt(f,b){flt=f;document.querySelectorAll('#tab-history .fb').forEach(x=>x.classList.remove('active'));b.classList.add('active');renderHistory()}
+function setRpt(p,b){rptP=p;document.querySelectorAll('#tab-report .fb').forEach(x=>x.classList.remove('active'));b.classList.add('active');renderReport()}
+
+function mkC(id,type,labels,datasets,opts={}){
+  if(CH[id])CH[id].destroy();
+  const c=document.getElementById(id);if(!c)return;
+  CH[id]=new Chart(c,{type,data:{labels,datasets},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},...opts}});
+}
+
+/* ===== RENDER DASHBOARD ===== */
+function renderDash(){
+  const n=new Date();
+  const mo=entries.filter(e=>{const d=new Date(e.date);return d.getMonth()===n.getMonth()&&d.getFullYear()===n.getFullYear()});
+  const sl=mo.filter(e=>e.type==='sale'),rf=mo.filter(e=>e.type==='refund');
+  const ts=sl.reduce((s,e)=>s+e.amount,0),tr=rf.reduce((s,e)=>s+e.amount,0),net=ts-tr;
+  const lm=new Date(n.getFullYear(),n.getMonth()-1,1);
+  const lms=entries.filter(e=>{const d=new Date(e.date);return d.getMonth()===lm.getMonth()&&d.getFullYear()===lm.getFullYear()&&e.type==='sale'}).reduce((s,e)=>s+e.amount,0);
+  const gr=lms?Math.round(((net-lms)/lms)*100):0;
+  const all=entries.filter(e=>e.type==='sale').reduce((s,e)=>s+e.amount,0);
+  document.getElementById('metGrid').innerHTML=`
+    <div class="metric"><div class="m-label">Net Revenue This Month</div><div class="m-val up">${fA(net)}</div><div class="m-sub">${gr>=0?'▲':'▼'} ${Math.abs(gr)}% vs last month</div></div>
+    <div class="metric"><div class="m-label">Total Sales</div><div class="m-val">${fA(ts)}</div><div class="m-sub">${sl.length} transactions</div></div>
+    <div class="metric"><div class="m-label">Refunds</div><div class="m-val warn">${fA(tr)}</div><div class="m-sub">${rf.length} refunds</div></div>
+    <div class="metric"><div class="m-label">All-Time Revenue</div><div class="m-val">${fA(all)}</div><div class="m-sub">${entries.length} total entries</div></div>
+  `;
+  const dim=new Date(n.getFullYear(),n.getMonth()+1,0).getDate();
+  const dm={};sl.forEach(e=>{const d=new Date(e.date).getDate();dm[d]=(dm[d]||0)+e.amount});
+  const dlbl=Array.from({length:dim},(_,i)=>i+1);
+  mkC('dayChart','bar',dlbl,[{data:dlbl.map(d=>Math.round(dm[d]||0)),backgroundColor:'rgba(24,95,165,0.15)',borderColor:'#185FA5',borderWidth:1.5,borderRadius:4}],
+    {scales:{x:{ticks:{color:'#888',font:{size:10}},grid:{display:false}},y:{ticks:{color:'#888',font:{size:10},callback:v=>'৳'+v},grid:{color:'rgba(0,0,0,0.04)'}}}});
+
+  const rec=entries.slice(0,5);
+  document.getElementById('dashAddBtn').style.display=isVO?'none':'';
+  document.getElementById('recentList').innerHTML=rec.length?rec.map(e=>`
+    <div class="re-item">
+      <div class="re-ico ${e.type==='refund'?'rf':''}"><i class="ti ti-${e.type==='sale'?'receipt':'receipt-refund'}"></i></div>
+      <div class="re-info">
+        <div class="re-name">${e.product}</div>
+        <div class="re-meta">${fD(e.date)} · ${e.payment}${e.customer?' · '+e.customer:''}</div>
+      </div>
+      <div class="re-amt ${e.type==='sale'?'apos':'aneg'}">${e.type==='refund'?'−':''}${fA(e.amount)}</div>
+      <div class="re-acts">${isAuth?`
+        <button class="bic ed btn-sm" onclick="openEdit('${e.id}')" title="Edit"><i class="ti ti-edit"></i></button>
+        <button class="bic dl btn-sm" onclick="deleteEntry('${e.id}')" title="Delete"><i class="ti ti-trash"></i></button>`:''}</div>
+    </div>`).join(''):'<div class="empty" style="padding:1.5rem"><i class="ti ti-receipt-off"></i>No entries yet</div>';
+}
+
+/* ===== RENDER HISTORY ===== */
+function renderHistory(){
+  const d=filtered();
+  const body=document.getElementById('histBody'),emp=document.getElementById('histEmpty');
+  if(!d.length){body.innerHTML='';emp.style.display='';return}
+  emp.style.display='none';
+  body.innerHTML=d.map(e=>`
+    <tr>
+      <td style="font-size:12px;color:var(--text2)">${fD(e.date)}</td>
+      <td><div style="font-weight:500">${e.product}</div>${e.customer?`<div style="font-size:11px;color:var(--text3)">${e.customer}</div>`:''}</td>
+      <td><span class="badge b-blue">${e.category}</span></td>
+      <td style="font-size:12px;color:var(--text2)">${e.payment}</td>
+      <td class="${e.type==='sale'?'apos':'aneg'}">${e.type==='refund'?'−':''}${fA(e.amount)}</td>
+      <td style="white-space:nowrap">${isAuth?`
+        <button class="bic ed btn-sm" onclick="openEdit('${e.id}')" title="Edit"><i class="ti ti-edit"></i></button>
+        <button class="bic dl btn-sm" onclick="deleteEntry('${e.id}')" title="Delete"><i class="ti ti-trash"></i></button>`:'<span style="font-size:11px;color:var(--text3)">view only</span>'}
+      </td>
+    </tr>`).join('');
+}
+
+/* ===== RENDER TRASH ===== */
+function renderTrash(){
+  const lst=document.getElementById('trashList'),emp=document.getElementById('trashEmpty');
+  document.getElementById('emptyBtn').style.display=trash.length&&isAuth?'':'none';
+  if(!trash.length){lst.innerHTML='';emp.style.display='';return}
+  emp.style.display='none';
+  lst.innerHTML=trash.map(e=>`
+    <div class="tr-item">
+      <div class="tr-info">
+        <div class="tr-name">${e.product} <span style="font-size:11px;color:var(--text3)">(${fA(e.amount)})</span></div>
+        <div class="tr-meta">${e.category} · ${e.payment} · ${fD(e.date)}</div>
+      </div>
+      <span class="tr-days">${dLeft(e.deletedAt)}d left</span>
+      ${isAuth?`<button class="bic rs btn-sm" onclick="restoreEntry('${e.id}')" title="Restore"><i class="ti ti-restore"></i></button>
+      <button class="bic dl btn-sm" onclick="permDel('${e.id}')" title="Delete permanently"><i class="ti ti-trash-x"></i></button>`:'' }
+    </div>`).join('');
+}
+
+/* ===== RENDER REPORT ===== */
+function renderReport(){
+  const mo=rptP==='3m'?3:rptP==='6m'?6:12;
+  const n=new Date(),md=[];
+  for(let i=mo-1;i>=0;i--){
+    const d=new Date(n.getFullYear(),n.getMonth()-i,1);
+    const lbl=d.toLocaleDateString('en-US',{month:'short',year:'2-digit'});
+    const s=entries.filter(e=>{const x=new Date(e.date);return x.getMonth()===d.getMonth()&&x.getFullYear()===d.getFullYear()&&e.type==='sale'}).reduce((a,e)=>a+e.amount,0);
+    const r=entries.filter(e=>{const x=new Date(e.date);return x.getMonth()===d.getMonth()&&x.getFullYear()===d.getFullYear()&&e.type==='refund'}).reduce((a,e)=>a+e.amount,0);
+    md.push({lbl,s:Math.round(s),r:Math.round(r),net:Math.round(s-r)});
+  }
+  const tot=md.reduce((a,m)=>a+m.net,0),avg=Math.round(tot/mo);
+  const best=md.reduce((a,b)=>b.net>a.net?b:a,{net:0,lbl:'-'});
+  document.getElementById('rptMet').innerHTML=`
+    <div class="metric"><div class="m-label">Total Revenue (${mo} months)</div><div class="m-val up">${fA(tot)}</div></div>
+    <div class="metric"><div class="m-label">Monthly Average</div><div class="m-val">${fA(avg)}</div></div>
+    <div class="metric"><div class="m-label">Best Month</div><div class="m-val">${best.lbl}</div><div class="m-sub">${fA(best.net)}</div></div>
+  `;
+  mkC('rptChart','line',md.map(m=>m.lbl),[
+    {label:'Sales',data:md.map(m=>m.s),borderColor:'#185FA5',backgroundColor:'rgba(24,95,165,0.07)',fill:true,tension:.4,pointRadius:4,borderWidth:2},
+    {label:'Refunds',data:md.map(m=>m.r),borderColor:'#A32D2D',backgroundColor:'rgba(163,45,45,0.05)',fill:true,tension:.4,pointRadius:4,borderWidth:2,borderDash:[5,3]}
+  ],{scales:{x:{ticks:{color:'#888',font:{size:11}},grid:{display:false}},y:{ticks:{color:'#888',font:{size:11},callback:v=>'৳'+v.toLocaleString()},grid:{color:'rgba(0,0,0,0.04)'}}}});
+
+  const ct={};entries.filter(e=>e.type==='sale').forEach(e=>{ct[e.category]=(ct[e.category]||0)+e.amount});
+  const ck=Object.keys(ct),cv=ck.map(k=>Math.round(ct[k]));
+  const tot2=cv.reduce((a,b)=>a+b,0)||1;
+  mkC('donut','doughnut',ck,[{data:cv,backgroundColor:CLR.slice(0,ck.length),borderWidth:0,hoverOffset:4}],{cutout:'62%'});
+  document.getElementById('donutLgd').innerHTML=ck.map((k,i)=>`
+    <div style="display:flex;align-items:center;gap:8px;margin-bottom:9px">
+      <span style="width:10px;height:10px;border-radius:2px;background:${CLR[i]};flex-shrink:0"></span>
+      <span style="font-size:13px;color:var(--text2)">${k}</span>
+      <span style="font-size:13px;font-weight:600;margin-left:auto">${Math.round(ct[k]/tot2*100)}%</span>
+    </div>`).join('');
+
+  const pm={};entries.filter(e=>e.type==='sale').forEach(e=>{pm[e.product]=(pm[e.product]||0)+e.amount});
+  const top=Object.entries(pm).sort((a,b)=>b[1]-a[1]).slice(0,5);
+  const mx=top[0]?.[1]||1;
+  document.getElementById('topProds').innerHTML=top.length?top.map(([nm,a],i)=>`
+    <div style="margin-bottom:14px">
+      <div style="display:flex;justify-content:space-between;margin-bottom:5px">
+        <span style="font-size:13px;font-weight:500">${i+1}. ${nm}</span>
+        <span style="font-size:13px;color:var(--green);font-weight:600">${fA(Math.round(a))}</span>
+      </div>
+      <div class="pbar"><div class="pfill" style="width:${Math.round(a/mx*100)}%"></div></div>
+    </div>`).join(''):'<div class="empty" style="padding:1rem"><i class="ti ti-package-off"></i>No data yet</div>';
+}
+
+/* ===== FIREBASE ===== */
+function loadCfg(){
+  const c=JSON.parse(localStorage.getItem('fbCfg')||'{}');
+  if(c.apiKey)document.getElementById('fbKey').value=c.apiKey;
+  if(c.dbUrl)document.getElementById('fbUrl').value=c.dbUrl;
+  if(c.projectId)document.getElementById('fbPid').value=c.projectId;
+  if(c.appId)document.getElementById('fbAid').value=c.appId;
+}
+function saveFb(){
+  const cfg={apiKey:document.getElementById('fbKey').value.trim(),dbUrl:document.getElementById('fbUrl').value.trim(),projectId:document.getElementById('fbPid').value.trim(),appId:document.getElementById('fbAid').value.trim()};
+  if(!cfg.apiKey||!cfg.dbUrl){toast('Please enter API Key and Database URL','er');return}
+  localStorage.setItem('fbCfg',JSON.stringify(cfg));
+  toast('Config saved! Connecting...','inf');initFb(cfg);
+}
+function initFb(cfg){
+  const dot=document.getElementById('syncDot'),txt=document.getElementById('syncTxt');
+  if(typeof firebase==='undefined'){
+    const s=document.createElement('script');
+    s.src='https://cdnjs.cloudflare.com/ajax/libs/firebase/9.23.0/firebase-app-compat.min.js';
+    s.onload=()=>{const s2=document.createElement('script');s2.src='https://cdnjs.cloudflare.com/ajax/libs/firebase/9.23.0/firebase-database-compat.min.js';s2.onload=()=>conFb(cfg);document.head.appendChild(s2)};
+    document.head.appendChild(s);
+  } else conFb(cfg);
+  dot.className='dot y';txt.textContent='Connecting...';
+}
+function conFb(cfg){
+  const dot=document.getElementById('syncDot'),txt=document.getElementById('syncTxt');
+  try{
+    try{firebase.app()}catch(e){firebase.initializeApp({apiKey:cfg.apiKey,databaseURL:cfg.dbUrl,projectId:cfg.projectId,appId:cfg.appId})}
+    db=firebase.database();fbRef=db.ref('bizEntries');tbRef=db.ref('bizTrash');
+    fbRef.on('value',snap=>{
+      const d=snap.val();
+      if(d){entries=Object.values(d).sort((a,b)=>new Date(b.date)-new Date(a.date));saveE();}
+      dot.className='dot g';txt.textContent='Synced ✓';
+      toast('Firebase connected — real-time sync active!','ok');renderDash();
+    },err=>{dot.className='dot r';txt.textContent='Error';toast('Firebase error: '+err.message,'er')});
+    tbRef.on('value',snap=>{
+      const d=snap.val();
+      if(d){trash=Object.values(d).sort((a,b)=>new Date(b.deletedAt)-new Date(a.deletedAt));saveT();updateTCnt();}
+    });
+  }catch(e){dot.className='dot r';txt.textContent='Failed';toast('Error: '+e.message,'er')}
+}
+function testFb(){
+  if(!db){toast('Please save Firebase config first','er');return}
+  db.ref('.info/connected').once('value',s=>{if(s.val())toast('Firebase is connected!','ok');else toast('Not connected','er')});
+}
+
+/* ===== EXPORT ===== */
+function expCSV(){
+  const rows=[['Date','Product','Category','Payment','Type','Amount (৳)','Customer','Note']];
+  entries.forEach(e=>rows.push([new Date(e.date).toLocaleDateString('en-US'),e.product,e.category,e.payment,e.type,e.amount,e.customer||'',e.note||'']));
+  const csv=rows.map(r=>r.map(c=>'"'+String(c).replace(/"/g,'""')+'"').join(',')).join('\n');
+  const a=document.createElement('a');a.href='data:text/csv;charset=utf-8,\uFEFF'+encodeURIComponent(csv);a.download='business_report.csv';a.click();
+  toast('CSV downloaded!','ok');
+}
+function expJSON(){
+  const a=document.createElement('a');a.href='data:application/json,'+encodeURIComponent(JSON.stringify(entries,null,2));a.download='business_backup.json';a.click();
+  toast('JSON backup downloaded!','ok');
+}
+function nukeAll(){
+  if(!isAuth){toast('Please login first','er');return}
+  if(!confirm('Delete ALL data permanently? This cannot be undone!'))return;
+  entries=[];trash=[];saveE();saveT();
+  if(db&&fbRef)fbRef.set({});if(db&&tbRef)tbRef.set({});
+  updateTCnt();renderDash();toast('All data deleted','inf');
+}
+
+/* ===== TOAST ===== */
+function toast(m,t='ok'){const x=document.getElementById('toast');x.textContent=m;x.className='toast '+t+' show';setTimeout(()=>x.classList.remove('show'),3200)}
+
+/* Auto-boot if already authenticated */
+const _cfg=JSON.parse(localStorage.getItem('fbCfg')||'{}');
+</script>
+</body>
+</html>
