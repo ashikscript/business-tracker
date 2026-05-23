@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Digital Business Tracker</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/dist/tabler-icons.min.css" />
+<link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+<!-- ========== LOGIN ========== -->
+<div id="loginScreen">
+  <div class="login-box">
+    <div class="login-logo"><i class="ti ti-chart-bar"></i></div>
+    <h2>Business Tracker</h2>
+    <p>Your digital product sales dashboard</p>
+    <div class="lock-badge"><i class="ti ti-lock" style="font-size:12px"></i> Password Protected</div>
+    <div class="pass-wrap">
+      <input type="password" id="passInput" placeholder="Enter password" onkeydown="if(event.key==='Enter')doLogin()" />
+      <button class="eye-btn" onclick="toggleEye()"><i class="ti ti-eye" id="eyeIcon"></i></button>
+    </div>
+    <div class="hint" id="loginHint"></div>
+    <button class="btn btn-primary btn-full" style="margin-top:.75rem" onclick="doLogin()">
+      <i class="ti ti-login"></i> Login
+    </button>
+    <div class="divider">or</div>
+    <button class="btn btn-full" onclick="goViewOnly()">
+      <i class="ti ti-eye"></i> View Only (no password)
+    </button>
+    <p style="font-size:11px;color:var(--text3);margin-top:1.25rem">Default password: <strong>1234</strong> &nbsp;·&nbsp; Change it in Setup</p>
+  </div>
+</div>
+
+<!-- ========== MAIN APP ========== -->
+<div id="mainApp">
+<div class="app">
+
+  <div class="header">
+    <div>
+      <h1><i class="ti ti-chart-bar"></i> Business Tracker</h1>
+      <p class="header-sub" id="dateDisplay"></p>
+    </div>
+    <div class="header-right">
+      <div class="sync-badge"><div class="dot y" id="syncDot"></div><span id="syncTxt">Offline</span></div>
+      <button class="icon-btn" onclick="doLogout()"><i class="ti ti-lock" style="font-size:13px"></i> <span id="logLabel">Logout</span></button>
+    </div>
+  </div>
+
+  <div class="vo-bar" id="voBar" style="display:none">
+    <i class="ti ti-eye"></i> <strong>View Only</strong> — Login to add, edit or delete entries
+    <button class="btn btn-sm btn-primary" style="margin-left:auto" onclick="doLogout()">Login</button>
+  </div>
+
+  <div class="tabs">
+    <button class="tab active" onclick="showTab('dashboard')"><i class="ti ti-home"></i> Dashboard</button>
+    <button class="tab" id="tabAdd" onclick="showTab('add')"><i class="ti ti-plus"></i> New</button>
+    <button class="tab" onclick="showTab('history')"><i class="ti ti-list"></i> History</button>
+    <button class="tab" onclick="showTab('report')"><i class="ti ti-chart-line"></i> Report</button>
+    <button class="tab tab-rel" onclick="showTab('trash')"><i class="ti ti-trash"></i> Trash<span class="t-cnt" id="tCnt" style="display:none"></span></button>
+    <button class="tab" onclick="showTab('setup')"><i class="ti ti-settings"></i> Setup</button>
+  </div>
+
+  <!-- DASHBOARD -->
+  <div class="section active" id="tab-dashboard">
+    <div class="metrics" id="metGrid"></div>
+    <div class="card">
+      <div class="card-title"><i class="ti ti-calendar-stats"></i> Daily Sales This Month (৳)</div>
+      <div class="chart-wrap"><canvas id="dayChart"></canvas></div>
+    </div>
+    <div class="card">
+      <div class="card-title">
+        <i class="ti ti-clock"></i> Recent 5 Entries
+        <button class="btn btn-sm" style="margin-left:auto" id="dashAddBtn" onclick="showTab('add')"><i class="ti ti-plus"></i> Add New</button>
+      </div>
+      <div id="recentList"></div>
+    </div>
+  </div>
+
+  <!-- ADD -->
+  <div class="section" id="tab-add">
+    <div class="card">
+      <div class="card-title"><i class="ti ti-receipt"></i> Add New Sale</div>
+      <div class="fg">
+        <div class="fgroup"><label>Product Name *</label><input type="text" id="fProd" placeholder="e.g. Premium Template Pack" /></div>
+        <div class="fgroup"><label>Category</label>
+          <select id="fCat">
+            <option value="Software">Software / App</option>
+            <option value="eBook">eBook / PDF</option>
+            <option value="Template">Template / Design</option>
+            <option value="Course">Course / Video</option>
+            <option value="Other">Other</option>
+          </select>
+        </div>
+        <div class="fgroup"><label>Amount (৳) *</label><input type="number" id="fAmt" placeholder="0" min="0" /></div>
+        <div class="fgroup"><label>Payment Method</label>
+          <select id="fPay">
+            <option value="bKash">bKash</option>
+            <option value="Nagad">Nagad</option>
+            <option value="Rocket">Rocket</option>
+            <option value="Bank Transfer">Bank Transfer</option>
+            <option value="Cash">Cash</option>
+            <option value="Card">Card</option>
+            <option value="PayPal">PayPal</option>
+            <option value="Other">Other</option>
+          </select>
+        </div>
+        <div class="fgroup"><label>Customer (optional)</label><input type="text" id="fCust" placeholder="Customer name or ID" /></div>
+        <div class="fgroup"><label>Type</label>
+          <select id="fType">
+            <option value="sale">Sale ✅</option>
+            <option value="refund">Refund ❌</option>
+          </select>
+        </div>
+        <div class="fgroup full"><label>Note (optional)</label><textarea id="fNote" placeholder="Any extra info..."></textarea></div>
+      </div>
+      <div style="margin-top:1rem;display:flex;gap:8px;flex-wrap:wrap">
+        <button class="btn btn-primary" onclick="addEntry()"><i class="ti ti-check"></i> Save Entry</button>
+        <button class="btn" onclick="clearForm()"><i class="ti ti-x"></i> Clear</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- HISTORY -->
+  <div class="section" id="tab-history">
+    <div class="card" style="padding:1rem">
+      <div class="srow">
+        <input type="text" id="srch" placeholder="Search product or customer..." oninput="renderHistory()" />
+        <select onchange="renderHistory()" id="fltCat" style="width:140px;flex-shrink:0">
+          <option value="">All Categories</option>
+          <option value="Software">Software</option>
+          <option value="eBook">eBook</option>
+          <option value="Template">Template</option>
+          <option value="Course">Course</option>
+          <option value="Other">Other</option>
+        </select>
+      </div>
+      <div class="filters">
+        <button class="fb active" onclick="setFlt('all',this)">All</button>
+        <button class="fb" onclick="setFlt('sale',this)">Sales</button>
+        <button class="fb" onclick="setFlt('refund',this)">Refunds</button>
+        <button class="fb" onclick="setFlt('today',this)">Today</button>
+        <button class="fb" onclick="setFlt('month',this)">This Month</button>
+      </div>
+      <div style="overflow-x:auto">
+        <table>
+          <thead><tr><th>Date</th><th>Product</th><th>Category</th><th>Payment</th><th>Amount</th><th></th></tr></thead>
+          <tbody id="histBody"></tbody>
+        </table>
+      </div>
+      <div id="histEmpty" class="empty" style="display:none"><i class="ti ti-receipt-off"></i>No entries found</div>
+    </div>
+  </div>
+
+  <!-- REPORT -->
+  <div class="section" id="tab-report">
+    <div class="metrics" id="rptMet"></div>
+    <div class="card">
+      <div class="card-title"><i class="ti ti-trending-up"></i> Monthly Revenue Comparison</div>
+      <div class="filters">
+        <button class="fb active" onclick="setRpt('3m',this)">3 Months</button>
+        <button class="fb" onclick="setRpt('6m',this)">6 Months</button>
+        <button class="fb" onclick="setRpt('12m',this)">12 Months</button>
+      </div>
+      <div class="chart-wrap" style="height:240px"><canvas id="rptChart"></canvas></div>
+    </div>
+    <div class="card">
+      <div class="card-title"><i class="ti ti-chart-donut"></i> Category Breakdown</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;align-items:center">
+        <div class="chart-wrap" style="height:180px"><canvas id="donut"></canvas></div>
+        <div id="donutLgd"></div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-title"><i class="ti ti-trophy"></i> Top Products</div>
+      <div id="topProds"></div>
+    </div>
+  </div>
+
+  <!-- TRASH -->
+  <div class="section" id="tab-trash">
+    <div class="card">
+      <div class="card-title">
+        <i class="ti ti-trash"></i> Trash
+        <span style="font-size:12px;color:var(--text3);font-weight:400;margin-left:4px">— Items auto-delete after 15 days</span>
+        <button class="btn btn-sm" style="margin-left:auto;color:var(--red)" id="emptyBtn" onclick="emptyTrash()"><i class="ti ti-trash-x"></i> Empty All</button>
+      </div>
+      <div id="trashList"></div>
+      <div id="trashEmpty" class="empty" style="display:none"><i class="ti ti-trash-off"></i>Trash is empty</div>
+    </div>
+  </div>
+
+  <!-- SETUP -->
+  <div class="section" id="tab-setup">
+
+    <div class="card">
+      <div class="card-title"><i class="ti ti-lock"></i> Change Password</div>
+      <div style="display:grid;gap:10px;max-width:340px">
+        <div class="fgroup"><label>Current Password</label><input type="password" id="oldP" placeholder="Current password" /></div>
+        <div class="fgroup"><label>New Password</label><input type="password" id="newP" placeholder="New password (min 4 chars)" /></div>
+        <div class="fgroup"><label>Confirm New Password</label><input type="password" id="confP" placeholder="Repeat new password" /></div>
+      </div>
+      <button class="btn btn-primary" style="margin-top:12px" onclick="changePass()"><i class="ti ti-check"></i> Update Password</button>
+    </div>
+
+    <div class="card">
+      <div class="card-title"><i class="ti ti-brand-firebase" style="color:#E37525"></i> Firebase Setup — Sync Across All Devices</div>
+      <p style="font-size:13px;color:var(--text2);margin-bottom:1rem;line-height:1.7">Connect Firebase to sync your data across every device in real time. It's completely free.</p>
+      <div class="sstep"><div class="snum">1</div><div class="stxt">Go to <strong>firebase.google.com</strong> → Sign in with Google → <strong>Create a project</strong> → give it a name → Continue → Create project</div></div>
+      <div class="sstep"><div class="snum">2</div><div class="stxt"><strong>Build → Realtime Database → Create Database → Start in test mode → Enable</strong></div></div>
+      <div class="sstep"><div class="snum">3</div><div class="stxt">Click <strong>⚙️ Project Settings</strong> → scroll to <strong>Your apps</strong> → click <strong>&lt;/&gt; Web</strong> → Register app → copy the <code>firebaseConfig</code> object</div></div>
+      <div class="sstep"><div class="snum">4</div><div class="stxt">Paste each value below and click <strong>Save & Connect</strong></div></div>
+      <div style="display:grid;gap:10px;margin-top:1.25rem">
+        <div class="fgroup"><label>API Key</label><input type="text" id="fbKey" placeholder="AIzaSy..." /></div>
+        <div class="fgroup"><label>Database URL</label><input type="text" id="fbUrl" placeholder="https://your-project-default-rtdb.firebaseio.com" /></div>
+        <div class="fgroup"><label>Project ID</label><input type="text" id="fbPid" placeholder="your-project-id" /></div>
+        <div class="fgroup"><label>App ID</label><input type="text" id="fbAid" placeholder="1:123456789:web:abc123..." /></div>
+      </div>
+      <div style="margin-top:1rem;display:flex;gap:8px;flex-wrap:wrap">
+        <button class="btn btn-primary" onclick="saveFb()"><i class="ti ti-device-floppy"></i> Save & Connect</button>
+        <button class="btn" onclick="testFb()"><i class="ti ti-wifi"></i> Test Connection</button>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title"><i class="ti ti-database-export"></i> Export Data</div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap">
+        <button class="btn" onclick="expCSV()"><i class="ti ti-file-spreadsheet"></i> Export CSV</button>
+        <button class="btn" onclick="expJSON()"><i class="ti ti-file-code"></i> Backup JSON</button>
+      </div>
+    </div>
+
+    <div class="card" style="border-color:rgba(163,45,45,.3)">
+      <div class="card-title" style="color:var(--red)"><i class="ti ti-alert-triangle"></i> Danger Zone</div>
+      <p style="font-size:13px;color:var(--text2);margin-bottom:12px">This will permanently delete all data. This cannot be undone.</p>
+      <button class="btn" style="color:var(--red);border-color:rgba(163,45,45,.4)" onclick="nukeAll()"><i class="ti ti-trash"></i> Delete All Data</button>
+    </div>
+
+  </div>
+</div>
+</div>
+
+<!-- EDIT MODAL -->
+<div class="modal-bg" id="editModal">
+  <div class="modal">
+    <div class="modal-hd">Edit Entry <button class="mc" onclick="closeEdit()"><i class="ti ti-x"></i></button></div>
+    <div class="fg">
+      <div class="fgroup"><label>Product Name *</label><input type="text" id="eProd" /></div>
+      <div class="fgroup"><label>Category</label>
+        <select id="eCat">
+          <option value="Software">Software / App</option>
+          <option value="eBook">eBook / PDF</option>
+          <option value="Template">Template / Design</option>
+          <option value="Course">Course / Video</option>
+          <option value="Other">Other</option>
+        </select>
+      </div>
+      <div class="fgroup"><label>Amount (৳) *</label><input type="number" id="eAmt" min="0" /></div>
+      <div class="fgroup"><label>Payment Method</label>
+        <select id="ePay">
+          <option value="bKash">bKash</option>
+          <option value="Nagad">Nagad</option>
+          <option value="Rocket">Rocket</option>
+          <option value="Bank Transfer">Bank Transfer</option>
+          <option value="Cash">Cash</option>
+          <option value="Card">Card</option>
+          <option value="PayPal">PayPal</option>
+          <option value="Other">Other</option>
+        </select>
+      </div>
+      <div class="fgroup"><label>Customer</label><input type="text" id="eCust" /></div>
+      <div class="fgroup"><label>Type</label>
+        <select id="eType">
+          <option value="sale">Sale ✅</option>
+          <option value="refund">Refund ❌</option>
+        </select>
+      </div>
+      <div class="fgroup full"><label>Note</label><textarea id="eNote"></textarea></div>
+    </div>
+    <input type="hidden" id="eId" />
+    <div style="margin-top:1rem;display:flex;gap:8px">
+      <button class="btn btn-primary" onclick="saveEdit()"><i class="ti ti-check"></i> Save Changes</button>
+      <button class="btn" onclick="closeEdit()">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
